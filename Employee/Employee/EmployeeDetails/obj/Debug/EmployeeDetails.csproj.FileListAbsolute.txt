@@ -1,0 +1,6 @@
+C:\Users\sgundapu\Documents\Visual Studio 2013\Projects\Employee\Employee\EmployeeDetails\bin\EmployeeDetails.dll.config
+C:\Users\sgundapu\Documents\Visual Studio 2013\Projects\Employee\Employee\EmployeeDetails\bin\EmployeeDetails.dll
+C:\Users\sgundapu\Documents\Visual Studio 2013\Projects\Employee\Employee\EmployeeDetails\bin\EmployeeDetails.pdb
+C:\Users\sgundapu\Documents\Visual Studio 2013\Projects\Employee\Employee\EmployeeDetails\obj\Debug\EmployeeDetails.csprojResolveAssemblyReference.cache
+C:\Users\sgundapu\Documents\Visual Studio 2013\Projects\Employee\Employee\EmployeeDetails\obj\Debug\EmployeeDetails.dll
+C:\Users\sgundapu\Documents\Visual Studio 2013\Projects\Employee\Employee\EmployeeDetails\obj\Debug\EmployeeDetails.pdb
