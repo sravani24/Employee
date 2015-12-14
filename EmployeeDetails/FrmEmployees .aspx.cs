@@ -19,16 +19,18 @@ namespace EmployeeDetails
             
             if (!IsPostBack)
             { 
-                BindGrid(); }
-              
-            
+                BindGrid();
+            }
+
             Label2.Visible = false;
+            
+            
         }
         public void BindGrid()
         {
             var connectionstring = ConfigurationManager.ConnectionStrings["EmployeeDBConnectionString"].ConnectionString;
             SqlConnection sc = new SqlConnection(connectionstring);
-            SqlCommand cmd = new SqlCommand("SELECT [First_Name] AS First_Name, [Email], [City], [Contact_No] AS Contact_No FROM [Employee]", sc);
+            SqlCommand cmd = new SqlCommand("SELECT [First_Name] AS First_Name, [Email], [CityName] AS City, [Contact_No] AS Contact_No FROM [Employee]", sc);
             sc.Open();
            SqlDataReader dr = cmd.ExecuteReader();
             DataTable dt = new DataTable();
@@ -38,45 +40,12 @@ namespace EmployeeDetails
              sc.Close();
 
         }
-
-        protected void Button1_Click(object sender, EventArgs e)
+        protected void Add_Employee(object sender, EventArgs e)
         {
             Response.Redirect("FrmEmployeeDetail.aspx");
-
         }
-
-        protected void Button2_Click(object sender, EventArgs e)
+        protected void Delete_Employee(object sender, EventArgs e)
         {
-           
-
-            int count = 0;
-            foreach (GridViewRow row in this.GridView1.Rows)
-            {
-                CheckBox chkId = (row.FindControl("cbSelect") as CheckBox);
-                if (chkId.Checked)
-                {
-                    count++;
-                    shared.first_name = row.Cells[1].Text;
-                }
-              
-            }
-            if(count == 1)
-            {
-
-              
-                Response.Redirect("FrmEmployeeDetail.aspx");
-            }
-            else
-            {
-                Label2.Text = "You can update only one row at an instance . select only one row.";
-                Label2.Visible = true;
-            }
-          
-        }
-
-        protected void Button3_Click(object sender, EventArgs e)
-        {
-
             foreach (GridViewRow row in GridView1.Rows)
             {
                 if (GridView1.Rows.Count > 0)
@@ -96,7 +65,8 @@ namespace EmployeeDetails
 
                                 var connectionstring = ConfigurationManager.ConnectionStrings["EmployeeDBConnectionString"].ConnectionString;
                                 SqlConnection sc = new SqlConnection(connectionstring);
-                                SqlCommand cmd = new SqlCommand("Delete from Employee where First_Name='" + First_Name + "'", sc);
+                                int emid = shared.emp_id(First_Name);
+                                SqlCommand cmd = new SqlCommand("Delete from Employee where EmployeeID='" + emid + "'", sc);
                                 sc.Open();
                                 cmd.ExecuteNonQuery();
                                 sc.Close();
@@ -111,11 +81,55 @@ namespace EmployeeDetails
             }
             BindGrid();
         }
+
+        protected void Update_Employee(object sender, EventArgs e)
+        {
+            int count = 0;
+            foreach (GridViewRow row in this.GridView1.Rows)
+            {
+                CheckBox chkId = (row.FindControl("cbSelect") as CheckBox);
+                if (chkId.Checked)
+                {
+                    count++;
+                    shared.first_Name = row.Cells[1].Text;
+                }
+
+            }
+            if (count == 1)
+            {
+                shared.Employee_id=shared.emp_id(shared.first_Name);
+                Response.Redirect("FrmEmployeeDetail.aspx");
+            }
+            else
+            {
+                Label2.Text = "Select Only one row";
+                Label2.Visible = true;
+                
+            }
+        }
         
     }
     public static class shared
     {
-        public static string first_name="NS";
+        public static int Employee_id=0;
+        public static string first_Name = "NS";
+       
+        public static int emp_id(string name)
+        { 
+            var connectionstring = ConfigurationManager.ConnectionStrings["EmployeeDBConnectionString"].ConnectionString;
+            SqlConnection sc = new SqlConnection(connectionstring);
+            sc.Open();
+            SqlCommand cmd = new SqlCommand("select EmployeeID from Employee where First_Name='" + name + "'", sc);
+            SqlDataReader dr = cmd.ExecuteReader();
+            while (dr.Read())
+            {
+                Employee_id = (Int32.Parse(dr["EmployeeID"].ToString()));
+            }
+            sc.Close();
+            return Employee_id;
+           
+        }
+       
     }
 }
             

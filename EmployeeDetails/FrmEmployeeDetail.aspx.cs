@@ -12,6 +12,7 @@ namespace EmployeeDetails
 {
     public partial class FrmEmployeeDetail : System.Web.UI.Page
     {
+        
         public static string First_name;
         public static string Last_name;
         public static string Department ;
@@ -19,79 +20,31 @@ namespace EmployeeDetails
         public static string Email;
         public static string State;
         public static string City;
+        public static int emp_id_check;
 
         protected void Page_Load(object sender, EventArgs e)
         {
-            if(shared.first_name != "NS")
+            if (!IsPostBack)
             {
-                Button1.Visible = false;
-                
-                var connectionstring = ConfigurationManager.ConnectionStrings["EmployeeDBConnectionString"].ConnectionString;
-                SqlConnection sc = new SqlConnection(connectionstring);
 
-                string selectSql = "select * from Employee";
-                SqlCommand cmd = new SqlCommand(selectSql, sc);
-
-                try
+                if (shared.Employee_id != 0)
                 {
-                    sc.Open();
 
-                    using (SqlDataReader read = cmd.ExecuteReader())
-                    {
-                        while (read.Read())
-                        {
-                            TextBox1.Text = (read["First_Name"].ToString());
-                            TextBox2.Text = (read["Last_Name"].ToString());
-                            DropDownList1.Text = (read["Department"].ToString());
-                            TextBox3.Text = (read["Contact_No"].ToString());
-                            TextBox4.Text = (read["Email"].ToString());
-                            DropDownList2.Text = (read["State"].ToString());
-                            DropDownList3.Text = (read["City"].ToString());
+                    Emp_Details_Retrive(shared.Employee_id);
 
-                        }
-                    }
                 }
-                finally
-                {
-                    sc.Close();
-                }
-            }
-            else
-            {
-                Button2.Visible = false;
             }
           
             Label9.Visible = false;
            
         }
 
-        
-
-        protected void DropDownList2_SelectedIndexChanged(object sender, EventArgs e)
+        protected void Insert_Data(object sender, EventArgs e)
         {
-
-
-            DropDownList3.Items.Clear();
-            var connectionstring = ConfigurationManager.ConnectionStrings["EmployeeDBConnectionString"].ConnectionString;
-            SqlConnection sc = new SqlConnection(connectionstring);
-            SqlCommand cmd2 = new SqlCommand("Select CityName from City where StateId in (select StateId from State where StateName='" + DropDownList2.SelectedValue + "')", sc);
-            
-               
-                sc.Open();
-                
-                SqlDataReader reader2 = cmd2.ExecuteReader();
-                while (reader2.Read())
-                {
-                    DropDownList3.Items.Add(reader2[0].ToString());
-                }
-                sc.Close();
-                
-            
-        }
-        protected void Button1_Click(object sender, EventArgs e)
-        {
-            
-
+           int eid= shared.emp_id(TextBox1.Text);
+           //insertion
+            if(eid==0)
+            {
                 Page.Validate();
                 if (Page.IsValid == true)
                 {
@@ -102,10 +55,42 @@ namespace EmployeeDetails
                     Label9.Visible = true;
                     Label9.Text = "Please Enter Valid data.";
                 }
-            
+            }
+          //updation
+            else 
+            {
+                First_name = TextBox1.Text;
+                Last_name = TextBox2.Text;
+                Department = DropDownList1.SelectedItem.ToString();
+                Contact_No = TextBox3.Text;
+                Email = TextBox4.Text;
+                State = DropDownList2.SelectedItem.ToString();
+                City = DropDownList3.SelectedItem.ToString();
+                var connectionstring = ConfigurationManager.ConnectionStrings["EmployeeDBConnectionString"].ConnectionString;
+                SqlConnection sc = new SqlConnection(connectionstring);
+                sc.Open();
+
+                SqlCommand cmd3 = new SqlCommand("update Employee set First_Name = @First_Name , Last_Name = @Last_Name , Department = @Department , Contact_No = @Contact_No , Email = @Email , StateName = @StateName, CityName = @CityName where EmployeeID = " + shared.Employee_id, sc);
+
+                cmd3.Parameters.AddWithValue("First_Name", First_name);
+                cmd3.Parameters.AddWithValue("Last_Name", Last_name);
+                cmd3.Parameters.AddWithValue("Department", Department);
+                cmd3.Parameters.AddWithValue("Contact_No", Contact_No);
+                cmd3.Parameters.AddWithValue("Email", Email);
+                cmd3.Parameters.AddWithValue("StateName", State);
+                cmd3.Parameters.AddWithValue("CityName", City);
+                int success = cmd3.ExecuteNonQuery();
+                if (success == 1)
+                {
+                    Label9.Visible = true;
+                    Label9.Text = "Employee Data Updated";
+                    sc.Close();
+                }
+            }
             
         }
 
+        
         private void Insert()
         {
             First_name = TextBox1.Text;
@@ -119,14 +104,14 @@ namespace EmployeeDetails
             SqlConnection sc = new SqlConnection(connectionstring);
             sc.Open();
 
-            SqlCommand cmd3 = new SqlCommand("insert into Employee (First_Name,Last_Name,Department,Contact_No,Email ,State ,City) values (@First_Name,@Last_Name,@Department,@Contact_No,@Email ,@State ,@City)", sc);
+            SqlCommand cmd3 = new SqlCommand("insert into Employee (First_Name,Last_Name,Department,Contact_No,Email ,StateName ,CityName) values (@First_Name,@Last_Name,@Department,@Contact_No,@Email ,@StateName ,@CityName)", sc);
             cmd3.Parameters.AddWithValue("First_Name", First_name);
             cmd3.Parameters.AddWithValue("Last_Name", Last_name);
             cmd3.Parameters.AddWithValue("Department", Department);
             cmd3.Parameters.AddWithValue("Contact_No", Contact_No);
             cmd3.Parameters.AddWithValue("Email", Email);
-            cmd3.Parameters.AddWithValue("State", State);
-            cmd3.Parameters.AddWithValue("City", City);
+            cmd3.Parameters.AddWithValue("StateName", State);
+            cmd3.Parameters.AddWithValue("CityName", City);
             int success = cmd3.ExecuteNonQuery();
             if (success == 1)
             {
@@ -136,17 +121,70 @@ namespace EmployeeDetails
             }
         }
 
-        protected void Button2_Click(object sender, EventArgs e)
+        private void Emp_Details_Retrive(int empid)
         {
+
             var connectionstring = ConfigurationManager.ConnectionStrings["EmployeeDBConnectionString"].ConnectionString;
             SqlConnection sc = new SqlConnection(connectionstring);
+
+            SqlCommand cmd = new SqlCommand("select * from Employee where EmployeeID=" + empid, sc);
+
+
+            try
+            {
+                sc.Open();
+
+                using (SqlDataReader read = cmd.ExecuteReader())
+                {
+                    while (read.Read())
+                    {
+                        TextBox1.Text = (read["First_Name"].ToString());
+                        TextBox2.Text = (read["Last_Name"].ToString());
+                        DropDownList1.Text = (read["Department"].ToString());
+                        TextBox3.Text = (read["Contact_No"].ToString());
+                        TextBox4.Text = (read["Email"].ToString());
+                        DropDownList2.Text = (read["StateName"].ToString());
+                        DropDownList3.Items.Insert(0,new ListItem(read["CityName"].ToString(),"0"));//listread["CityName"].ToString());
+
+                    }
+                }
+            }
+            finally
+            {
+                sc.Close();
+            }
+
+        }
+
+        protected void DropDownList2_SelectedIndexChanged(object sender, EventArgs e)
+        {
+
+
+            City_Bind();
+            
+
+
+        }
+
+       private void City_Bind()
+        {
+            DropDownList3.Items.Clear();
+           
+            var connectionstring = ConfigurationManager.ConnectionStrings["EmployeeDBConnectionString"].ConnectionString;
+            SqlConnection sc = new SqlConnection(connectionstring);
+            SqlCommand cmd2 = new SqlCommand("Select CityName from City where StateId in (select StateId from State where StateName='" + DropDownList2.SelectedValue + "')", sc);
+
+
             sc.Open();
 
-            SqlCommand cmd3 = new SqlCommand("delete from Employee where First_Name='" + shared.first_name + "'", sc);
-            cmd3.ExecuteNonQuery();
+            SqlDataReader reader2 = cmd2.ExecuteReader();
+            while (reader2.Read())
+            {
+                DropDownList3.Items.Add(reader2[0].ToString());
+            }
             sc.Close();
-            Insert();
         }
+       
     }
      
 }
