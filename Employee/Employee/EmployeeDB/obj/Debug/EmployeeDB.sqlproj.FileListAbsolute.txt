@@ -1,5 +1,0 @@
-C:\Users\sgundapu\Documents\Visual Studio 2013\Projects\Employee\Employee\EmployeeDB\bin\Debug\EmployeeDB.dacpac
-C:\Users\sgundapu\Documents\Visual Studio 2013\Projects\Employee\Employee\EmployeeDB\bin\Debug\EmployeeDB.dll
-C:\Users\sgundapu\Documents\Visual Studio 2013\Projects\Employee\Employee\EmployeeDB\bin\Debug\EmployeeDB.pdb
-C:\Users\sgundapu\Documents\Visual Studio 2013\Projects\Employee\Employee\EmployeeDB\obj\Debug\EmployeeDB.dll
-C:\Users\sgundapu\Documents\Visual Studio 2013\Projects\Employee\Employee\EmployeeDB\obj\Debug\EmployeeDB.pdb
