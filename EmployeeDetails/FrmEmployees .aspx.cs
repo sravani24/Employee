@@ -7,24 +7,25 @@ using System.Web.UI;
 using System.Web.UI.WebControls;
 using System.Data;
 using System.Data.SqlClient;
+using System.IO;
 
 namespace EmployeeDetails
 {
     public partial class FrmEmployees : System.Web.UI.Page
     {
-        
+
         protected void Page_Load(object sender, EventArgs e)
         {
-          
-            
+
+
             if (!IsPostBack)
-            { 
+            {
                 BindGrid();
             }
 
             Label2.Visible = false;
-            
-            
+
+
         }
         public void BindGrid()
         {
@@ -32,12 +33,12 @@ namespace EmployeeDetails
             SqlConnection sc = new SqlConnection(connectionstring);
             SqlCommand cmd = new SqlCommand("SELECT [First_Name] AS First_Name, [Email], [CityName] AS City, [Contact_No] AS Contact_No FROM [Employee]", sc);
             sc.Open();
-           SqlDataReader dr = cmd.ExecuteReader();
+            SqlDataReader dr = cmd.ExecuteReader();
             DataTable dt = new DataTable();
-             dt.Load(dr);
-             GridView1.DataSource = dt;
-             GridView1.DataBind();
-             sc.Close();
+            dt.Load(dr);
+            GridView1.DataSource = dt;
+            GridView1.DataBind();
+            sc.Close();
 
         }
         protected void Add_Employee(object sender, EventArgs e)
@@ -97,25 +98,71 @@ namespace EmployeeDetails
             }
             if (count == 1)
             {
-                shared.Employee_id=shared.emp_id(shared.first_Name);
+                shared.Employee_id = shared.emp_id(shared.first_Name);
                 Response.Redirect("FrmEmployeeDetail.aspx");
             }
             else
             {
                 Label2.Text = "Select Only one row";
                 Label2.Visible = true;
-                
+
             }
         }
-        
+
+        protected void Export_to_Excel_Click(object sender, EventArgs e)
+        {
+            Export();
+        }
+        private void Export()
+        {
+            this.GridView1.Columns[0].Visible = false;
+            Response.Clear();
+            Response.Buffer = true;
+            Response.ClearContent();
+            Response.ClearHeaders();
+            Response.Charset = "";
+            string FileName = "Employees_Sheet" + ".xls";
+            StringWriter strwritter = new StringWriter();
+            HtmlTextWriter htmltextwrtter = new HtmlTextWriter(strwritter);
+            Response.Cache.SetCacheability(HttpCacheability.NoCache);
+            Response.ContentType = "application/vnd.ms-excel";
+            Response.AddHeader("Content-Disposition", "attachment;filename=" + FileName);
+            GridView1.GridLines = GridLines.Both;
+            GridView1.HeaderStyle.Font.Bold = true;
+            GridView1.RenderControl(htmltextwrtter);
+         
+            Response.Write(strwritter.ToString());
+            Response.End();
+
+
+
+        }
+        public override void VerifyRenderingInServerForm(Control control)
+        {
+            //required to avoid the run time error "  
+            //Control 'GridView1' of type 'Grid View' must be placed inside a form tag with runat=server."  
+        }
+
+        protected void Button4_Click(object sender, EventArgs e)
+        {
+            var connectionstring = ConfigurationManager.ConnectionStrings["EmployeeDBConnectionString"].ConnectionString;
+            SqlConnection sc = new SqlConnection(connectionstring);
+            sc.Open();
+            DataSet ds = new DataSet();
+            SqlDataAdapter adap = new SqlDataAdapter("select * from Employee", sc);
+            adap.Fill(ds, "Employee");
+            String xmlFileName = "Employee.xml";
+            ds.WriteXml(Server.MapPath("~/XML/" + xmlFileName));
+            sc.Close();
+        }
     }
     public static class shared
     {
-        public static int Employee_id=0;
+        public static int Employee_id = 0;
         public static string first_Name = "NS";
-       
+
         public static int emp_id(string name)
-        { 
+        {
             var connectionstring = ConfigurationManager.ConnectionStrings["EmployeeDBConnectionString"].ConnectionString;
             SqlConnection sc = new SqlConnection(connectionstring);
             sc.Open();
@@ -127,9 +174,9 @@ namespace EmployeeDetails
             }
             sc.Close();
             return Employee_id;
-           
+
         }
-       
+
     }
 }
             
